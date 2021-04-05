@@ -1,29 +1,17 @@
+from sqlalchemy import schema
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from fastapi  import FastAPI , HTTPException
-from pydantic import BaseModel, Field
-from typing   import List,Dict, Optional
+from . import schemas,database,models
+import databases
 import uuid
 
-class DisciplinaChangableEntry(BaseModel):
-    nome_disciplina  :  Optional[str]       = Field(..., example="Mega Dados")
-    nome_professor   :  Optional[str]       = Field(..., example="Fabio Ayres")
-    anotacoes        :  Optional[str]       = Field(..., example="Fazer projeto SQL,")
+# SQLAlchemy specific code, as with any other app
+DATABASE_URL = "sqlite:///./test.db"
+# DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
-class NotaEntry(BaseModel):
-    nome_da_prova : str
-    nota   :   int
-
-class DisciplinaEntry(BaseModel):
-    nome_disciplina  :  str                 = Field(..., example="Mega Dados")
-    nome_professor   :  Optional[str]       = Field(..., example="Fabio Ayres")
-    anotacoes        :  Optional[str]       = Field(..., example="Fazer projeto SQL,")
-    notas_id         :  Optional[List[str]] = Field(..., example=[])
-
-class AlunoEntry(BaseModel):
-    nome_aluno       : str                  = Field(..., example="José")
-    disciplinas_id   : Optional[List[str]]  = Field(..., example=[])
+database = databases.Database(DATABASE_URL)
 
 app = FastAPI()
 
@@ -75,14 +63,14 @@ async def validation_exception_handler(exc):
 
 #---Criar Aluno ------# OK!
 @app.post("/aluno")
-def registre_aluno(aluno: AlunoEntry):
+def registre_aluno(aluno: schemas.Aluno):
     ID = str(uuid.uuid1())
     db["Alunos"][ID] = aluno.dict()
     return db["Alunos"][ID]
 
 #---Criar Disciplinas ------# OK!
 @app.post("/alunos/{id_aluno}/disciplinas")
-def registre_disciplina(id_aluno: str, disciplina: DisciplinaEntry):
+def registre_disciplina(id_aluno: str, disciplina: schemas.Disciplina):
     if id_aluno in db["Alunos"]:
         ID =str(uuid.uuid1())
         db["Alunos"][id_aluno]["disciplinas_id"].append(ID)
@@ -93,7 +81,7 @@ def registre_disciplina(id_aluno: str, disciplina: DisciplinaEntry):
 
 #---Criar Nota ------# OK!
 @app.post("/alunos/{id_aluno}/disciplinas/{id_disciplina}/nota")
-def registre_nota(id_aluno:str ,id_disciplina: str, nota: NotaEntry):
+def registre_nota(id_aluno:str ,id_disciplina: str, nota: schemas.Nota):
     if id_aluno in db["Alunos"]:
         if id_disciplina in db["Alunos"][id_aluno]["disciplinas_id"]:
             ID =str(uuid.uuid1())
@@ -158,12 +146,12 @@ def todas_notas_disciplina(id_aluno: str,id_disciplina: str):
         raise HTTPException(status_code=404, detail="aluno não encontrado")
 
 #---Altera disciplina---#
-@app.patch("/alunos/{id_aluno}/disciplinas/{id_disciplina}/nome/disciplina", response_model= DisciplinaChangableEntry)
-def altera_nome_disciplina(id_aluno:str ,id_disciplina: str, nome_disciplina: DisciplinaChangableEntry):
+@app.patch("/alunos/{id_aluno}/disciplinas/{id_disciplina}/nome/disciplina", response_model= schemas.Disciplina)
+def altera_nome_disciplina(id_aluno:str ,id_disciplina: str, nome_disciplina: schemas.Disciplina):
     if id_aluno in db["Alunos"]:
         if id_disciplina in db["Alunos"][id_aluno]["disciplinas_id"]:
             stored_disciplina = db["Disciplinas"][id_disciplina]
-            stored_disciplina_model = DisciplinaEntry(**stored_disciplina)
+            stored_disciplina_model = schemas.Disciplina(**stored_disciplina)
             update_data = nome_disciplina.dict(exclude_unset=True)
             updated_disciplina = stored_disciplina_model.copy(update=update_data)
             db["Disciplinas"][id_disciplina] = updated_disciplina.dict()
@@ -174,13 +162,13 @@ def altera_nome_disciplina(id_aluno:str ,id_disciplina: str, nome_disciplina: Di
         raise HTTPException(status_code=404, detail="aluno não encontrado")
 
 #---Altera disciplina Nota---#
-@app.patch("/alunos/{id_aluno}/disciplinas/{id_disciplina}/notas/{id_nota}", response_model= NotaEntry)
-def altera_nota_disciplina(id_aluno:str ,id_disciplina: str,id_nota:str ,nome_nota: NotaEntry):
+@app.patch("/alunos/{id_aluno}/disciplinas/{id_disciplina}/notas/{id_nota}", response_model= schemas.Nota)
+def altera_nota_disciplina(id_aluno:str ,id_disciplina: str,id_nota:str ,nome_nota: schemas.Nota):
     if id_aluno in db["Alunos"]:
         if id_disciplina in db["Alunos"][id_aluno]["disciplinas_id"]:
             if id_nota in db["Disciplinas"][id_disciplina]["notas_id"]:
                 stored_nota = db["Notas"][id_nota]
-                stored_nota_model = NotaEntry(**stored_nota)
+                stored_nota_model = schemas.Nota(**stored_nota)
                 update_data = nome_nota.dict(exclude_unset=True)
                 updated_disciplina = stored_nota_model.copy(update=update_data)
                 db["Notas"][id_nota] = updated_disciplina.dict()
