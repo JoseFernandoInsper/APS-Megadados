@@ -7,9 +7,9 @@ class NotaEntry(BaseModel):
 class NotaCreate(NotaEntry):
     pass
 class Nota(NotaEntry):
-    id: str
-    aluno_id: str
-    disciplina_id: str
+    id: int
+    aluno_id: int
+    disciplina_id: int
     class Config:
         orm_mode = True
 
@@ -20,9 +20,9 @@ class DisciplinaEntry(BaseModel):
 class DisciplinaCreate(DisciplinaEntry):
     pass
 class Disciplina(DisciplinaEntry):
-    id: str
+    id: int
     notas: List[NotaEntry] = []
-    alunos_id: List[str]
+    alunos_id: List[int]
     class Config:
         orm_mode = True
 
@@ -31,7 +31,7 @@ class AlunoEntry(BaseModel):
 class AlunoCreate(AlunoEntry):
     senha:  str
 class Aluno(AlunoEntry):
-    id:     str
+    id:     int
     logado: bool
     disciplinas: List[Disciplina] = []
     notas: List[Nota] = []
