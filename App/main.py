@@ -123,7 +123,7 @@ def altera_nome_disciplina(db:Session,aluno_id:int ,disciplina_id: int, nome_dis
         if db_disciplina is None:
             raise HTTPException(status_code=404, detail="Disciplina não encontrada")
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
-    return crud.alter_disc_nome(db=db, aluno=aluno_id ,disciplina=disciplina_id,novo_nome=nome_disciplina)
+    return crud.alter_disc_nome(db=db,disciplina=disciplina_id,novo_nome=nome_disciplina)
 
 #---Altera disciplina Nota---#
 @app.patch("/alunos/{aluno_id}/disciplinas/{disciplina_id}/notas/{id_nota}", response_model= schemas.Nota)
@@ -134,7 +134,7 @@ def altera_nota_disciplina(db:Session,aluno_id:int ,disciplina_id: int,id_nota:i
         if db_disciplina is None:
             raise HTTPException(status_code=404, detail="Disciplina não encontrada")
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
-    return crud.alter_nota(db=db, aluno=aluno_id ,disciplina=disciplina_id,nota_id=id_nota,nova_nota=nome_nota)
+    return crud.alter_nota(db=db,nota_id=id_nota,nova_nota=nome_nota)
 
 #---Deletar Nota ---#
 @app.delete("/alunos/{aluno_id}/disciplinas/{disciplina_id}/notas/{id_nota}/deleta")
@@ -145,7 +145,7 @@ def delete_nota(db:Session,aluno_id:int ,disciplina_id: int, id_nota: int):
         if db_disciplina is None:
             raise HTTPException(status_code=404, detail="Disciplina não encontrada")
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
-    return crud.delete_nota(db=db, aluno=aluno_id ,disciplina=disciplina_id,nota_id=id_nota)
+    return crud.delete_nota(db=db,nota_id=id_nota)
 
 #---Deletar disciplina ---#
 @app.delete("/alunos/{aluno_id}/disciplina/{disciplina_id}")
@@ -156,5 +156,5 @@ def delete_disciplina(db:Session,aluno_id:int ,disciplina_id: int):
         if db_disciplina is None:
             raise HTTPException(status_code=404, detail="Disciplina não encontrada")
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
-    return crud.alter_disc_nome(db=db, aluno=aluno_id ,disciplina=disciplina_id)
+    return crud.delete_disciplina(db=db,disciplina=disciplina_id)
 
