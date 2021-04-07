@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+import models as models
+import schemas as schemas
 
 def get_alunos(db: Session):
     return db.query(models.Aluno).all()

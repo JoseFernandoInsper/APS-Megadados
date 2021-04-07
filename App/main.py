@@ -3,19 +3,21 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from fastapi  import Depends ,FastAPI , HTTPException
 from sqlalchemy.orm import Session
-from . import crud,schemas,models
-from .database import SessionLocal, engine
+import crud as crud
+import schemas as schemas
+import models as models
+import database as dt
 from typing import List
 
 import uuid
 
-models.Base.metadata.create_all(bind=engine)
+dt.Base.metadata.create_all(bind=dt.engine)
 
 app = FastAPI()
 
 # Dependency
 def get_db():
-    db = SessionLocal()
+    db = dt.SessionLocal()
     try:
         yield db
     finally:

@@ -1,9 +1,9 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from .database import Base
+import database as db
 
-class Aluno(Base):
+class Aluno(db.Base):
 
     __tablename__ = "alunos"
 
@@ -16,7 +16,7 @@ class Aluno(Base):
     disciplinas = relationship("Disciplinas", back_populates="disciplina")
     notas = relationship("Notas", back_populates="nota_aluno")
 
-class Disciplinas(Base):
+class Disciplinas(db.Base):
 
     __tablename__ = "disciplinas"
 
@@ -29,7 +29,7 @@ class Disciplinas(Base):
     disciplina = relationship("Alunos", back_populates="disciplinas")
     notas = relationship("Notas",back_populates="nota_disciplina")
 
-class Notas(Base):
+class Notas(db.Base):
 
     __tablename__ = "notas"
 
